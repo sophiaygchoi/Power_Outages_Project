@@ -78,6 +78,19 @@ To uncover potential associations between two variables, a boxplot was utilized 
 Upon examination of the box plot, distinct patterns in outage duration among different cause categories became evident. Notably, categories such as 'Intentional attack', 'System operability disruption', 'Equipment failure', and 'Islanding' exhibited relatively smaller box sizes, suggesting less variability or spread in data. Conversely, categories such as 'Severe weather', 'Public appeal', and 'Fuel supply emergency' displayed larger box sizes, indicating large spread in data. The variation in box sizes suggests differences in outage durations across various cause categories.
 
 ### Interesting Aggregates
+Grouping by year and cause category and looking at the pattern in duration mean is meaningful in a way that we can see the median trends over time of different category.
+
+|      |                               | OUTAGE.DURATION	 |
+|:-----|------------------------------:|:---------------|
+| YEAR |       CAUSE.CATEGORY          |                |
+| 2000 |                severe weather | 2490.0         |
+|      | system operability disruption | 375.5          |
+| 2001 |             equipment failure | 494.0          |
+|      |                 public appeal | 140.0 	        |
+|      |                severe weather | 10140.0  |
+
+
+
 The visual analysis conducted above focused on exploring the relationship between outage duration and cause categories. To enhance the reliability of our analysis, the data was grouped by year and cause category. The trends in the median outage duration over time is followed:
 
 <iframe src="assets/interesting_aggregates.html" width=800 height=600 frameBorder=0></iframe>
@@ -106,97 +119,121 @@ Our attention now shifts to the missingness of outage duration time, and our aim
 
 <iframe src="assets/missing-year.html" width=800 height=600 frameBorder=0></iframe>
 
+Upon inspecting the distributions of years, it's observed that while the shapes of the distributions differ, they roughly share the same central tendency. Consequently, the K-S statistic will be employed to further analyze the relationship between the variables. The observed k-s statistic is 0.3948.
+The plot below shows the empirical distribution of test statistics in 1000 permutations, the red line indicates the observed test statistics.
+
+<iframe src="assets/missing-year-empirical.html" width=800 height=600 frameBorder=0></iframe>
+
+From the graph above and the result from permutation test, we get p-value of roughly 0.0, which is significantly less than the significance threshold of 0.05. Therefore, we reject the null hypothesis. Thus, we conclude that it is highly possible that the missingness of duration depends on year column.
+
+#### Hour and Outage Duration
+**Null hypothesis:** The distribution of hour when outage duration is missing is identical to the distribution of hour when outage duration is not missing.
+<br> **Alternative hypothesis:** The distribution of hour when outage duration is missing differs from the distribution of hour when outage duration is not missing.
+
+<iframe src="assets/missing-hour.html" width=800 height=600 frameBorder=0></iframe>
+
+The plot below shows the empirical distribution of test statistics in 1000 permutations, the red line indicates the observed test statistics.
+
+<iframe src="assets/missing-hour-empirical.html" width=800 height=600 frameBorder=0></iframe>
+
+The plot below shows the empiritcal distribution of test statistices in 1000 permutations, the red line indicates the observed test statistics.
+
+From the graph above and the result from permutation test, we get p-value of 0.557, which is greater than the significance threshold of 0.05. Therefore, we fail to reject the null hypothesis. **Thus, we conclude that it is highly possible that the missingness of duration does not depend on hour column.**
 
 ---
-## Framing Investigation Problem
----
-## Framing Investigation Problem
----
-## Framing Investigation Problem
----
-## Framing Investigation Problem
----
-## Framing Investigation Problem
-**Investigation Problem**: In this project, we are going to perform an investigation on predicting the time duration to prepare recipes. Specifically, we will make a <u>multiclass classification model</u> in which the model will help classify the recipes into one of the four categories (light, casual, event, luxury) in terms of preparation duration to help people decide on the recipe that fits their pace of living.
+## Hypothesis Testing
+The research question under scrutiny is whether power outages caused by intentional attacks are less severe in terms of duration compared to other causes.
 
-**Response Variable**: `level` column that indicates the level of time consumption of a recipe. Because we want a prediction on the time consumption of a recipe categorized in different categories of timeframe, as shown in the data cleanning process of previous part, `level` is a good indicator.
+To delve deeper into this inquiry, I aim to ascertain whether power outages resulting from intentional attacks, such as vandalism and sabotage, exhibit shorter restoration times and consequently lower severity compared to outages caused by non-intentional factors. This hypothesis will be tested through a permutation test on the distribution of outage durations attributed to intentional and non-intentional causes.
 
-**Measureing Metrics**: the metrics for the performance of our classification model would be <u>*accuracy*</u>, this is because our distribution of level of time consumption in our observed datasets are not distributed very spread out, so we could use accuracy as a fair metrics that relect the true performance of our model.
+### Setting Up the Testing
+**Null Hypothesis H0:**  In the population, the severity (in terms of duration) of power outages caused by intentional attacks and non-intentional causes follows the same distribution.
 
-**Information At Time of Prediction**: At the time of prediction, the user would normally have the recipe's ingredients, instructions, nutrition table, and the tags where they find the recipe at hand. Through these details on the recipe, people can resonably count the number of steps and ingredients used in the recipe, determine its difficulty based on its tags, and its estimated protein amount in the nutrition table of the recipe. Hence, we would have all four features columns available at the time of prediction.
+**Alternative Hypothesis H1:** In the population, outage due to intentional attack have less serverity than power outage due to non-intentional causes, on average.
+
+Under the alternative hypothesis, outage severity resulting from intentional attacks is hypothesized to be lower than that caused by non-intentional factors in terms of duration.
+
+For the analysis, only pertinent columns including 'OBS', 'CAUSE.CATEGORY', and 'OUTAGE.DURATION' will be selected. Additionally, a new binary column named 'is_intentional' will be created, denoting whether the outage event was caused by an intentional attack. To address extreme numeric outliers in the 'OUTAGE.DURATION' column, a new categorical column 'severity' will be generated. This column will categorize outage durations into five brackets, each representing a different level of severity. The severity brackets are as follows:
+
+| duration (min) | severity |
+|:---------|:--------:|
+|  0 <= duration < 60   |  	1   |
+|  60 <= duration < 600   |  	2   |
+|  600 <= duration < 1200 |  	3   |
+|  1200 <= duration < 3000  |  	4   |
+|  3000 <= duration |  	5   |
+
+**Test Statistics:** Utilizing the new scaled severity of duration ('severity'), we have numerical data available. To effectively assess the difference in severity between intentional and non-intentional outage causes, the rescaled severity and the binary column indicating intentional attack status will be employed. Hence, it is appropriate to employ the difference in means as the test statistic.
+
+**Significance Level:** To uphold the accuracy and reliability of our conclusions, a significance level of 0.05 will be adopted for this hypothesis test.
+
+### Permutation Test
+According to the observed difference found, which is roughly -1.6622, the mean severity of power outage due to intentional attack is less than the power outage due to non-intentional causes.
+I ran permutation test for 10000 times and the graph shows the distribution of permutation test result. The red line marks the observed value.
+
+<iframe src="assets/hypothesis.html" width=800 height=600 frameBorder=0></iframe>
+
+### Hypothesis Testing Conclusion
+The obtained p-value for the hypothesis test is nearly 0.0, indicating strong evidence against the null hypothesis at a significance level of 0.05. Consequently, we reject the null hypothesis in favor of the alternative hypothesis.
+
+This result aligns with expectations and holds several implications. Firstly, power outages stemming from intentional attacks may exhibit shorter restoration times, leading to a higher likelihood of lower severity. It stands to reason that intentional attacks may prompt more efficient and targeted response efforts, thereby reducing outage durations compared to events caused by other factors.
+
+---
+## Framing a Prediction Problem
+### Problem Identification
+**Investigation Problem:**
+
+In this research project, the objective is to develop an accurate predictive model for estimating the severity of power outages in terms of duration. This prediction will be based on various features available in a comprehensive power outage dataset, including year, climate category, and cause category.
+
+**Response Variable:**
+
+The 'OUTAGE.DURATION' column serves as the response variable for this prediction task. As it directly indicates the severity of a power outage incident in terms of duration, it is a suitable indicator for our predictive model. Furthermore, since the goal is to predict a continuous outcome (duration), this problem will be framed as a regression task.
+
+**Measuring Metrics:**
+
+The performance of our regression model will be assessed using Root Mean Squared Error (RMSE) and R-squared (R^2) metrics. RMSE is chosen to gauge the average magnitude of prediction errors, offering insights into the model's accuracy while providing interpretable results. R^2, on the other hand, is essential for evaluating how much of the variation in the duration of power outages can be explained by our predictive model.
+
+**Information at Time of Prediction:**
+
+At the time of prediction, information regarding the year, climate category, and cause category will be readily available for each power outage incident. By leveraging these features available at the time of the outage, our predictive model will utilize relevant information to estimate the severity of the outage duration accurately.
+
+**Significance of Prediction:**
+
+The ability to predict the duration of power outages holds significant practical value for both power companies and the general public. Such predictions can aid in understanding the severity of potential outages, enabling proactive measures to mitigate their impact. This predictive tool can assist power companies in optimizing resource allocation and response strategies, while also empowering the public to better prepare for and manage potential disruptions.
 
 ---
 ## Baseline Model
-**Features Used**:
-For the Baseline Model, we decided to use two features as shown below:
+### Baseline Model
+**Brief Introduction**
+In the Baseline Model, we incorporate the year, climate category, and cause category of power outages as features for our regression model. This entails utilizing one quantitative variable (YEAR) and two nominal variables (CAUSE.CATEGORY and CLIMATE.CATEGORY) to build the baseline regression model.
 
-* `difficulty` (categorical feature): This feature extracted from the tags indicates the difficulty level of a recipe, and could be used as an useful feature in predicting the time consumption of the recipe. This is because recipes harder to perform tends to take up more time than easier recipes due to more complicated instructions and techniques required.
-    * Feature engineering: Since this feature is a categorical feature, we use one hot encoder to convert it into a bag of words matrix that can be useful for our modeling.
-* `protein` (numerical feature): This feature extracted from the nutrition table of the recipe indicates the amount of protein in that recipe, and could provide useful information in predicting the time it takes to complete the recipe. This is because recipes that are high in protein most of the time involve meat as the ingredient, which takes longer time to prepare and cook as compared to other recipes low in protein level.
-    * Feature Engineering: Since protein is a useful numerical feature that forms a strong correlation to cooking minutes, we decide to standardize it so that the distribution could be standardized and become more obvious during out modeling.
+**Data encoding**
+For the two random variable, we will be applying StandardScaler to standalize n_steps and use an identity function to transform n_ingredients. For the year, we will first get the year from the submitted column and use one hot encoder to deal with the value.
 
-**Model Construction**:
-With the above transformers for each of the feature, we used a ColumnTransformer to allocate a OneHotEncoder transformer and a StandardScaler transformer to the two columns separately, and combined with a <u>RandomForestClassifier</u> as our multi-class classifier in one Pipeline object as out baseline model.
+Here are the reasons why I choose these as the features:
 
-**Model Performance**:
-In our investigation, we separate the datasets in to a training set and a testing set (8:2 ratio), and fit our baseline model on the training set to test its performance in terms of accuracy on both seen and unseen data.
+YEAR: The duration of a power outage may vary depending on the year in which the outage occurred. Advancements in technology over time may lead to shorter outage durations, thereby reducing severity.
 
-The accuracy of baseline model on training set (seen data) is 0.5043137464007679;
-the accuracy of baseline model on testing set (unseen data) is 0.5002452810067186.
+CAUSE.CATEGORY: The cause of a power outage can significantly impact its duration. For example, outages caused by natural disasters may have longer durations and higher severity compared to those caused by intentional attacks, as restoring power after a natural disaster often requires extensive effort and resources.
 
-The performance of the baseline model is fine, but not excellent. This is because the accuracy is about 50%, but we have 40 percent of recipes classified as "light meal" in terms of time consumption. So 50% accuracy is not very significant in this case.
+CLIMATE.CATEGORY: Climate conditions can also influence the severity of outage durations. For instance, power outages occurring in regions with harsh climates, such as cold climates, may experience more severe impacts and longer durations due to potential facility damage and increased restoration challenges.
+
+**Model Descriptions and Performance**
+In this analysis, a linear regression model was employed using the scikit-learn library to predict the duration of power outages based on the features of year, climate category, and cause category. However, the performance of the current model, as indicated by the R^2 value, is not particularly strong. The training R^2 value of 0.17036191358779373 and the test R^2 value of 0.16258135998907863 suggest that only approximately 16% of the variability in the outage duration can be explained by these features. This indicates that either these features may not be the most influential factors in predicting outage duration, or that the relationship between these features and outage duration may not be accurately captured by the linear regression model.
+
+Additionally, the RMSE (Root Mean Squared Error) of the model is 7168.365732216755. This large RMSE suggests that, on average, the model's predictions deviate from the actual outage durations by approximately 7168.37 minutes. A larger RMSE value indicates that the model's predictions are less accurate, as they deviate more from the actual values. It's important to note that the wide range of outage durations in the dataset contributes to the large RMSE. Given the variability in outage durations, a larger RMSE may still be acceptable.
+
+To gain further insight into the model's performance, data visualization techniques were employed. By plotting the actual outage durations against the predicted outage durations, we can visually assess how well the model performs across the dataset.
+
+<iframe src="assets/baseline.html" width=800 height=600 frameBorder=0></iframe>
+
+The model can not correctly predict the severity of power outage.
 
 ---
 ## Final Model
-In the final model, in order to improve accuracy of our model, we decided to add the following two features into our model when classifying the recipes:
-* `n_steps` (numerical feature): This is because a recipe with more steps tend to take longer time to cook. For example, baking a cake tends to take longer than than making salads, and it also takes more steps.
-    * Feature Engineering: As steps is a valuable numerical feature that exhibits a significant association with cooking minutes, we opt to normalize it in order to standardize the distribution and enhance its clarity in our modeling process.
-* `n_ingredients` (numerical feature): This is because a recipe that uses more ingredients tends to take longer time to in terms of preparation, which reveals longer time to cook.
-    * Feature Engineering: Given that ingredients is a valuable numerical feature that demonstrates a robust correlation with cooking minutes, we choose to standardize it. This standardization aims to normalize the distribution and increase its clarity in our modeling process.
 
-**Model Construction and Choice of Hyperparameter:**
-**Model Construction**:
-Building upon the baseline model, we added the above two new features with StandardScaler transformer. We still use the RandomForestClassifer as our model of multiclass classification using pipeline. However, to improve accuracy of our model, we use Grid Search approach to figure out the optimized hyperparameter (maxmium depth of the decision tree inside the random forest).
-
-**Model Performance**:
-We fit our final model with the max_depth returned by the Grid Search (max_depth = 12) on the same training set to test its performance in terms of accuracy on both seen and unseen data.
-
-The accuracy of final model on training set (seen data) is 0.639138317159006;
-the accuracy of final model on testing set (unseen data) is 0.6193665351391703.
-
-The performance of the final model is better. This is because the accuracy of our final model improved by 10% as compared to our baseline model's accuracy, and we can compare the accuracy from the two models because we used the same training set and testing set for the two models.
-
-We can get a visualization on the performance of our final model using the illustration from the confusion matrix below:
-
-![confusion matrix](confusion_matrix.png)
 
 ---
 ## Fairness Analysis
-Going back to our investigation topic, we are investigating whether our model allows people to predict the time consumption of a recipe into one of the four categories we provided, to match with their lifestyle. So far, we have already constructed a final model that allows prediction, but observation the accuracy on the dataset alone cannot be a good indicator as to whether this model is fair when putting into different timings (older recipes and relatively newer recipes). We determined that a good way to test the fairness of our multiclass classification model is to take the difference between our predicted values's precision score on earlier recipes (2008-2012) and more recent recipes (2013-2018) for comparison. Hence, we are going to conduct a permutation test on the precision of our model in predicting the time consumption of recipes people reviewed in older recipes (2008-2012) and the precision of our model in predicting the time consumption of recipes people reviewed in more recent recipes (2013-2018) to see whether there is an actual bias in our model's performance in terms of different years.
 
-**Group A and Group B**: The two groups we are going to use in this permutation test will be extracted from the column `year`, in which we use a Binarizer with a threshold of 2012 to separate the two groups (older recipes and more recent recipes).
 
-*Group A*: Recipes reviewed between 2008 and 2012.
-
-*Group B*: Recipes reviewed between 2013 and 2018.
-
-(Note that our dataset only contains recipes reviewed between 2008 and 2018.)
-
-**Null Hypothesis**: Our model is fair. Its precision for older recipes (2008-2012) and more recent recipes
-(2013-2018) are roughly the same, and any differences are due to random chance.
-
-**Alternative Hypothesis**:  Our model is unfair. Its precision for older recipes is different from its
-precision for more recent recipes.
-
-**Significance Level**: The significance level we set for this permutation test is 0.01. That being said, we will perform a relatively strong permutation test with confidence level of 99%.
-
-**Evaluation Metrics and Test Statistics**: Since we used accuracy as the performance measurement in the models before, we will continue to use this as the evaluation metrics in our permutations. As for test statistics, because we suspect the accuracy might be different for testing on older recipes as compared to on more recent recipes, we use the absolute difference in accuracy scores of the predictions on two groups using our final model.
-
-**P-Value Result**:
-After 100 permutation, we get a p-value of 0.6, which is greater than our test statistics of 0.01. This suggests we fail to reject out null hypothesis.
-
-Below is a graphic visualization of the outcome of our permutation test:
-
-<iframe src="permutation_test_dist.html" width=800 height=600 frameBorder=0></iframe>
-
-**Conclusion**: According to the result from our permutation test above, it shows evidence that suggests our final model on predicting time consumption based on recipe contents is very likely to be a fair model in terms of the time for both old recipes and the relatively recent recipes.
