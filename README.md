@@ -1,5 +1,5 @@
 # Power Outages Project
-**Authors**: Yeogyeong Choi
+**Author**: Yeogyeong Choi
 ## Project Overview
 This data science project aims to analyze the severity of power outages. The dataset utilized for this investigation is available [here](https://engineering.purdue.edu/LASCI/research-data/outages), and data dictionary is available in [this source](https://www.sciencedirect.com/science/article/pii/S2352340918307182).
 
@@ -19,20 +19,20 @@ The data set contains the information of 1534 observations that pertain to the m
 
 Some of the relevant columns:
 
-|Variable Names	                 |Description|
-|:---------|:--------:|
-|  YEAR   |  	Indicates the year when the outage event occurred   |
-|  MONTH   |  Indicates the month when the outage event occurred   |
-|  U.S._STATE   |  U.S. Climate regions as specified by National Centers for Environmental Information (nine climatically consistent regions in continental U.S.A.)   |
-|  CLIMATE.REGION  |  Represents all the states in the continental U.S.   |
-|  ANOMALY.LEVEL   |  This represents the oceanic El Niño/La Niña (ONI) index referring to the cold and warm episodes by season. It is estimated as a 3-month running mean of ERSST.v4 SST anomalies in the Niño 3.4 region (5°N to 5°S, 120–170°W)  |
-|  CLIMATE.CATEGORY   |  This represents the climate episodes corresponding to the years. The categories—“Warm”, “Cold” or “Normal” episodes of the climate are based on a threshold of ± 0.5 °C for the Oceanic Niño Index (ONI)  |
-|  OUTAGE.START.DATE  |  This variable indicates the day of the year when the outage event started (as reported by the corresponding Utility in the region)   |
-|  OUTAGE.START.TIME   |  	This variable indicates the time of the day when the outage event started (as reported by the corresponding Utility in the region)  |
-|  OUTAGE.RESTORATION.DATE   |  This variable indicates the day of the year when power was restored to all the customers (as reported by the corresponding Utility in the region)   |
-|  OUTAGE.RESTORATION.TIME   |  This variable indicates the time of the day when power was restored to all the customers (as reported by the corresponding Utility in the region)   |
-|  CAUSE.CATEGORY   |  Categories of all the events causing the major power outages  |
-|  OUTAGE.DURATION  |  Duration of outage events (in minutes)   |
+|      Variable Names	             |                                                                                                          Description                                                                                                          |
+|:--------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|               YEAR               |                                                                                      	Indicates the year when the outage event occurred                                                                                       |
+|              MONTH               |                                                                                      Indicates the month when the outage event occurred                                                                                       |
+|            U.S._STATE            |                                       U.S. Climate regions as specified by National Centers for Environmental Information (nine climatically consistent regions in continental U.S.A.)                                        |
+|          CLIMATE.REGION          |                                                                                       Represents all the states in the continental U.S.                                                                                       |
+|          ANOMALY.LEVEL           | This represents the oceanic El Niño/La Niña (ONI) index referring to the cold and warm episodes by season. It is estimated as a 3-month running mean of ERSST.v4 SST anomalies in the Niño 3.4 region (5°N to 5°S, 120–170°W) |
+|         CLIMATE.CATEGORY         |           This represents the climate episodes corresponding to the years. The categories—“Warm”, “Cold” or “Normal” episodes of the climate are based on a threshold of ± 0.5 °C for the Oceanic Niño Index (ONI)            |
+|        OUTAGE.START.DATE         |                                              This variable indicates the day of the year when the outage event started (as reported by the corresponding Utility in the region)                                               |
+|        OUTAGE.START.TIME         |                                              	This variable indicates the time of the day when the outage event started (as reported by the corresponding Utility in the region)                                              |
+|     OUTAGE.RESTORATION.DATE      |                                       This variable indicates the day of the year when power was restored to all the customers (as reported by the corresponding Utility in the region)                                       |
+|     OUTAGE.RESTORATION.TIME      |                                       This variable indicates the time of the day when power was restored to all the customers (as reported by the corresponding Utility in the region)                                       |
+|          CAUSE.CATEGORY          |                                                                                 Categories of all the events causing the major power outages                                                                                  |
+|         OUTAGE.DURATION          |                                                                                            Duration of outage events (in minutes)                                                                                             |
 
 ---
 ## Data Cleaning and Exploratory Data Analysis
@@ -47,13 +47,13 @@ To ensure the dataset is prepared for thorough analysis, the following steps wer
 
 After data cleaning, the combined DataFrame looks like the following (only showing the first 5 rows for illustration):
 
-|   | OBS | YEAR | CAUSE.CATEGORY	     | OUTAGE.DURATION |           OUTAGE.START |  OUTAGE.RESTORATION |
-|--:|:----|-----:|:--------------------|----------------:|-----------------------:|--------------------:|
-| 0 | 1   | 2011 | severe weather      |          3060.0 |    2011-07-01 17:00:00 | 2011-07-03 20:00:00 |
-| 1 | 2   | 2014 | intentional attack  |             1.0 |    2014-05-11 18:38:00 | 2014-05-11 18:39:00 |
-| 2 | 3   | 2010 | severe weather	     |          3000.0 |    2010-10-26 20:00:00 | 2010-10-28 22:00:00 |
-| 3 | 4   | 2012 | severe weather	     |          2550.0 |    2012-06-19 04:30:00 | 2012-06-20 23:00:00 |
-| 4 | 5   | 2015 | severe weather      |          1740.0 |   2015-07-18 02:00:00	 | 2015-07-19 07:00:00 |
+|   | OBS | YEAR |   CAUSE.CATEGORY	   | OUTAGE.DURATION |      OUTAGE.START      | OUTAGE.RESTORATION  |
+|--:|:---:|:----:|:-------------------:|:---------------:|:----------------------:|:-------------------:|
+| 0 |  1  | 2011 |   severe weather    |     3060.0      |  2011-07-01 17:00:00   | 2011-07-03 20:00:00 |
+| 1 |  2  | 2014 | intentional attack  |       1.0       |  2014-05-11 18:38:00   | 2014-05-11 18:39:00 |
+| 2 |  3  | 2010 |   severe weather	   |     3000.0      |  2010-10-26 20:00:00   | 2010-10-28 22:00:00 |
+| 3 |  4  | 2012 |   severe weather	   |     2550.0      |  2012-06-19 04:30:00   | 2012-06-20 23:00:00 |
+| 4 |  5  | 2015 |   severe weather    |     1740.0      |  2015-07-18 02:00:00	  | 2015-07-19 07:00:00 |
 
 ### Data Cleaning: Univariate Analysis:
 
@@ -80,14 +80,14 @@ Upon examination of the box plot, distinct patterns in outage duration among dif
 ### Interesting Aggregates
 Grouping by year and cause category and looking at the pattern in duration mean is meaningful in a way that we can see the median trends over time of different category.
 
-|      |                               | OUTAGE.DURATION	 |
-|:-----|------------------------------:|:---------------|
-| YEAR |       CAUSE.CATEGORY          |                |
-| 2000 |                severe weather | 2490.0         |
-|      | system operability disruption | 375.5          |
-| 2001 |             equipment failure | 494.0          |
-|      |                 public appeal | 140.0 	        |
-|      |                severe weather | 10140.0  |
+|          |                               | OUTAGE.DURATION	 |
+|:--------:|:-----------------------------:|:----------------:|
+| **YEAR** |      **CAUSE.CATEGORY**       |                  |
+|   2000   |        severe weather         |      2490.0      |
+|          | system operability disruption |      375.5       |
+|   2001   |       equipment failure       |      494.0       |
+|          |         public appeal         |      140.0       |
+|          |        severe weather         |     10140.0      |
 
 
 
@@ -124,7 +124,7 @@ The plot below shows the empirical distribution of test statistics in 1000 permu
 
 <iframe src="assets/missing-year-empirical.html" width=800 height=600 frameBorder=0></iframe>
 
-From the graph above and the result from permutation test, we get p-value of roughly 0.0, which is significantly less than the significance threshold of 0.05. Therefore, we reject the null hypothesis. Thus, we conclude that it is highly possible that the missingness of duration depends on year column.
+From the graph above and the result from permutation test, we get p-value of roughly 0.0, which is significantly less than the significance threshold of 0.05. Therefore, we reject the null hypothesis. **Thus, we conclude that it is highly possible that the missingness of duration depends on year column**.
 
 #### Hour and Outage Duration
 **Null hypothesis:** The distribution of hour when outage duration is missing is identical to the distribution of hour when outage duration is not missing.
@@ -212,11 +212,11 @@ For the two random variable, we will be applying StandardScaler to standalize n_
 
 Here are the reasons why I choose these as the features:
 
-YEAR: The duration of a power outage may vary depending on the year in which the outage occurred. Advancements in technology over time may lead to shorter outage durations, thereby reducing severity.
+`YEAR`: The duration of a power outage may vary depending on the year in which the outage occurred. Advancements in technology over time may lead to shorter outage durations, thereby reducing severity.
 
-CAUSE.CATEGORY: The cause of a power outage can significantly impact its duration. For example, outages caused by natural disasters may have longer durations and higher severity compared to those caused by intentional attacks, as restoring power after a natural disaster often requires extensive effort and resources.
+`CAUSE.CATEGORY`: The cause of a power outage can significantly impact its duration. For example, outages caused by natural disasters may have longer durations and higher severity compared to those caused by intentional attacks, as restoring power after a natural disaster often requires extensive effort and resources.
 
-CLIMATE.CATEGORY: Climate conditions can also influence the severity of outage durations. For instance, power outages occurring in regions with harsh climates, such as cold climates, may experience more severe impacts and longer durations due to potential facility damage and increased restoration challenges.
+`CLIMATE.CATEGORY`: Climate conditions can also influence the severity of outage durations. For instance, power outages occurring in regions with harsh climates, such as cold climates, may experience more severe impacts and longer durations due to potential facility damage and increased restoration challenges.
 
 **Model Descriptions and Performance**
 In this analysis, a linear regression model was employed using the scikit-learn library to predict the duration of power outages based on the features of year, climate category, and cause category. However, the performance of the current model, as indicated by the R^2 value, is not particularly strong. The training R^2 value of 0.17036191358779373 and the test R^2 value of 0.16258135998907863 suggest that only approximately 16% of the variability in the outage duration can be explained by these features. This indicates that either these features may not be the most influential factors in predicting outage duration, or that the relationship between these features and outage duration may not be accurately captured by the linear regression model.
