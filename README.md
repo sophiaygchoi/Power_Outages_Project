@@ -111,7 +111,7 @@ One of the columns susceptible to NMAR is 'OUTAGE.START.TIME', which signifies t
 However, introducing a new column to denote the availability of recording during specific time ranges could unveil a potential dependency between this new column and the missingness in 'OUTAGE.START.TIME'. Consequently, this might render the missingness mechanism as MAR, as there could be a correlation between the availability of recording and the likelihood of capturing the outage start time.
 
 ### Missingness Dependency
-Our attention now shifts to the missingness of outage duration time, and our aim is to assess the dependency of this missingness. We intend to investigate the potential dependency of missingness on the year and another variable (which will be determined later). To evaluate this dependency, permutation tests were employed.
+This part aims to assess the dependency of this missingness. I intend to investigate the potential dependency of missingness on the year and another variable (which will be determined later). To evaluate this dependency, permutation tests were employed.
 
 #### Year and Outage Duration Time
 **Null hypothesis:** The distribution of 'YEAR' when outage duration is missing is identical to the distribution of 'YEAR' when outage duration is not missing.
@@ -205,18 +205,16 @@ The ability to predict the duration of power outages holds significant practical
 ## Baseline Model
 ### Baseline Model
 **Brief Introduction**
-In the Baseline Model, we incorporate the year, climate category, and cause category of power outages as features for our regression model. This entails utilizing one quantitative variable (YEAR) and two nominal variables (CAUSE.CATEGORY and CLIMATE.CATEGORY) to build the baseline regression model.
+In the Baseline Model, I incorporate the year, climate category, and cause category of power outages as features for our regression model. This entails utilizing one quantitative variable (YEAR) and two nominal variables (CAUSE.CATEGORY and CLIMATE.CATEGORY) to build the baseline regression model.
 
 **Data encoding**
-For the two random variable, we will be applying StandardScaler to standalize n_steps and use an identity function to transform n_ingredients. For the year, we will first get the year from the submitted column and use one hot encoder to deal with the value.
-
 Here are the reasons why I choose these as the features:
 
-`YEAR`: The duration of a power outage may vary depending on the year in which the outage occurred. Advancements in technology over time may lead to shorter outage durations, thereby reducing severity.
+`YEAR`: The duration of a power outage may vary depending on the year in which the outage occurred. Advancements in technology over time may lead to shorter outage durations, thereby reducing severity. Since the 'YEAR' variable is a discrete numerical feature representing the year when the power outage occurred, it was passed through without any encoding or transformation. It was directly used as a feature in the model.
 
-`CAUSE.CATEGORY`: The cause of a power outage can significantly impact its duration. For example, outages caused by natural disasters may have longer durations and higher severity compared to those caused by intentional attacks, as restoring power after a natural disaster often requires extensive effort and resources.
+`CAUSE.CATEGORY`: The cause of a power outage can significantly impact its duration. For example, outages caused by natural disasters may have longer durations and higher severity compared to those caused by intentional attacks, as restoring power after a natural disaster often requires extensive effort and resources. Cause category is categorical variable. To encode the variable, one-hot encoding was applied. This process involves creating binary columns for each category within the categorical variables. Each binary column indicates the presence or absence of a particular category for each observation. This encoding allows the model to interpret categorical variables as numerical features.
 
-`CLIMATE.CATEGORY`: Climate conditions can also influence the severity of outage durations. For instance, power outages occurring in regions with harsh climates, such as cold climates, may experience more severe impacts and longer durations due to potential facility damage and increased restoration challenges.
+`CLIMATE.CATEGORY`: Climate conditions can also influence the severity of outage durations. For instance, power outages occurring in regions with harsh climates, such as cold climates, may experience more severe impacts and longer durations due to potential facility damage and increased restoration challenges. Climate Category is categorical variable. To encode the variable, one-hot encoding was applied. This process involves creating binary columns for each category within the categorical variables. Each binary column indicates the presence or absence of a particular category for each observation. This encoding allows the model to interpret categorical variables as numerical features.
 
 **Model Descriptions and Performance**
 In this analysis, a linear regression model was employed using the scikit-learn library to predict the duration of power outages based on the features of year, climate category, and cause category. However, the performance of the current model, as indicated by the R^2 value, is not particularly strong. The training R^2 value of 0.17036191358779373 and the test R^2 value of 0.16258135998907863 suggest that only approximately 16% of the variability in the outage duration can be explained by these features. This indicates that either these features may not be the most influential factors in predicting outage duration, or that the relationship between these features and outage duration may not be accurately captured by the linear regression model.
@@ -231,9 +229,53 @@ The model can not correctly predict the severity of power outage.
 
 ---
 ## Final Model
+In the final model, I aimed to enhance the accuracy by introducing two additional features:
 
+`U.S._STATE`: The inclusion of this feature is crucial because different states may experience varying durations of power outages due to differences in electricity consumption patterns, economic characteristics, and restoration infrastructure. Each state may have a different number of technicians and varying geographic locations, affecting outage restoration times. For feature engineering, I applied one-hot encoding to categorize the states.
+
+`hour`: The time of the outage occurrence can significantly influence restoration efforts. For instance, outages during early morning or late night hours might take longer to resolve due to reduced workforce availability. As such, I included the hour of the outage occurrence as a numeric feature. For feature engineering, I retained the hour information as it is without transformation.
+
+Given the challenges associated with predicting exact outage durations, primarily due to the presence of numerous outliers, I opted to categorize severity based on duration minutes. This approach aligns with the brackets used in hypothesis testing and enables more robust predictions by mitigating the impact of extreme outliers:
+
+| duration (min) | severity |
+|:---------|:--------:|
+|  0 <= duration < 60   |  	1   |
+|  60 <= duration < 600   |  	2   |
+|  600 <= duration < 1200 |  	3   |
+|  1200 <= duration < 3000  |  	4   |
+|  3000 <= duration |  	5   |
+
+Consequently, severity becomes the response variable for the final model, which remains a suitable indicator for predictive modeling while addressing the challenges posed by extreme outliers.
+
+#### Model Construction and Choice of Hyperparameter:
+Model Construction: Building upon the baseline model and incorporating the newly defined severity variable, I integrated the aforementioned features. The final model employs RandomForestClassifier, chosen for its ability to handle complex relationships and yield improved accuracy. Utilizing a Grid Search approach, I optimized hyperparameters to enhance model performance.
+
+#### Model Performance:
+The final model, trained with the optimized hyperparameters (max_depth = 10) on the same dataset, exhibits promising accuracy on both training and testing data. The accuracy on the training set is 0.702, and on the testing set, it is 0.508. This outperforms the baseline linear regression model, which achieved R^2 scores of approximately 0.17 on both sets. While R^2 scores measure the proportion of variance explained by a regression model, accuracy reflects the proportion of correctly classified instances in classification tasks. The superior accuracy of the final model indicates its effectiveness in accurately predicting severity levels compared to the baseline model's ability to explain variance in the target variable.
 
 ---
 ## Fairness Analysis
+The project aims to assess the fairness of our multiclass classification model in predicting the severity of power outages across different time periods. While accuracy alone provides insight into model performance, it may not adequately gauge fairness when applied across various temporal contexts. To address this, I propose evaluating the precision of the model's predictions on earlier (2000-2008) and more recent (2009-2016) power outage incidents.
+
+**Group Formation:**
+I segregate the data into two distinct groups based on the year of the power outage incidents:
+
+Group A: Power outage incidents occurring between 2000 and 2008. <br>
+Group B: Power outage incidents occurring between 2009 and 2016.
+
+**Null Hypothesis:** The model is fair. Its precision for older incidents (2000-2008) and more recent incidents (2009-2016) are roughly the same, and any differences are due to random chance.
+
+**Alternative Hypothesis:** The model is unfair. Its precision for older incidents is different from its precision for more recent incidents.
+
+**Significance Level:** I set a significance level of 0.05 for this permutation test, ensuring that any observed differences are statistically significant with a 95% confidence level.
+
+**Evaluation Metrics and Test Statistics:** I continue to utilize accuracy as the evaluation metric, consistent with the previous model assessments. Test statistics will be computed as the absolute difference in accuracy scores between predictions on Group A and Group B using the final model. This approach enables us to quantify the disparity in model performance across different time periods accurately.
+
+<iframe src="assets/fairness.html" width=800 height=600 frameBorder=0></iframe>
+
+**P-Value Result:** After conducting 1000 permutations, the resulting p-value is 0.197. This value exceeds our predetermined significance level of 0.05, indicating that we do not have sufficient evidence to reject the null hypothesis.
+
+**Conclusion:** Based on the permutation test results, it appears that our final model for predicting power outage severity levels demonstrates fairness across different time periods. Both older power outage incidents and recent incidents show similar predictive accuracies, suggesting that our model's performance is consistent over time.
+
 
 
